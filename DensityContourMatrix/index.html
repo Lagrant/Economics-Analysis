@@ -27,16 +27,30 @@
             </form>
             <div class="drawbuttom" onclick="drawPlot('#vis', document.getElementById('band-size').value)">Draw Plot</div>
         </div>
-        <div class="slider">
+        <div class="controller">
             <div class="slider-fill">
-                <div style="font: 700 0.9rem sans-serif; margin-bottom: 3px;">Bandwidth</div>
+                <div class="slider-title">Bandwidth</div>
                 <input id="band-size" name="bandsize" type="range" min="1" max="20" step="1" value="6" oninput="setBandSize('#vis', this.value)" onchange="setBandSize('#vis', this.value)" style="width: 200px;">
                 <output id="slider-value" name="output" style="font: 14px Menlo, Consolas, monospace; margin-left: 0.5em">6</output>
             </div>
             <div class="slider-fill">
-                <div style="font: 700 0.9rem sans-serif; margin-bottom: 3px;">Block Size</div>
+                <div class="slider-title">Block Size</div>
                 <input id="block-size" name="blocksize" type="range" min="150" max="250" step="10" value="160" oninput="setBlockSize('#vis', this.value)" onchange="setBlockSize('#vis', this.value)" style="width: 200px;">
                 <output id="block-value" name="blockoutput" style="font: 14px Menlo, Consolas, monospace; margin-left: 0.5em">160</output>
+            </div>
+            <div class="toggle">
+                <label class="switch">
+                    <input type="checkbox" onclick="rotateXAxis('#vis', this)">
+                    <span class="slider round"></span>
+                  </label>
+                  <div class="rotate">rotate x ticks</div>
+            </div>
+            <div class="toggle">
+                <label class="switch">
+                    <input type="checkbox" onclick="rotateYAxis('#vis', this)">
+                    <span class="slider round"></span>
+                  </label>
+                  <div class="rotate">rotate y ticks</div>
             </div>
         </div>
         <div id="vis" class="vis">

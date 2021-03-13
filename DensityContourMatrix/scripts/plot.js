@@ -27,6 +27,22 @@ var setBlockSize = function(plotID, blockSize) {
     drawPlot(plotID);
 }
 
+var rotateXAxis = function(plotID, ob) {
+    if (d3.select(plotID).selectAll('*')[0].length === 0) {
+        return;
+    }
+    (ob.checked) ? d3.selectAll('.x').selectAll('text').attr('transform','rotate(45)').style('text-anchor', 'start') 
+        : d3.selectAll('.x').selectAll('text').attr('transform','rotate(0)').style('text-anchor', 'center');
+}
+
+var rotateYAxis = function(plotID, ob) {
+    if (d3.select(plotID).selectAll('*')[0].length === 0) {
+        return;
+    }
+    (ob.checked) ? d3.selectAll('.y').selectAll('text').attr('transform','rotate(45)')
+        : d3.selectAll('.y').selectAll('text').attr('transform','rotate(0)');
+}
+
 var drawPlot = function (plotID) {
     var div = d3.select(plotID);
     div.selectAll('*').remove();
