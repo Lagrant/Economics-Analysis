@@ -1,19 +1,33 @@
 var padding = 15;
-var size = 160;
-var margin = {left: 50, right: 50, top: 50, bottom: 50};
+var size = 160, bandSize = 6;
+var margin = {left: 60, right: 60, top: 50, bottom: 50};
 var width;
 var height;
 
-var setBandSize = function(plotID, bandSize) {
-    d3.select('#slider-value')
-        .text(bandSize);
+var setBandSize = function(plotID, _bandSize) {
+    d3.select('#slider-value').text(_bandSize);
     if (d3.select(plotID).selectAll('*')[0].length === 0) {
         return;
     }
-    drawPlot(plotID, bandSize);
+    bandSize = _bandSize;
+    drawPlot(plotID);
 }
 
-var drawPlot = function (plotID, bandSize = 5) {
+var setBlockSize = function(plotID, blockSize) {
+    d3.select('#block-value').text(blockSize);
+    if (d3.select(plotID).selectAll('*')[0].length === 0) {
+        return;
+    }
+    size = blockSize;
+    var blocks = d3.keys(mtx[0]).length;
+    height = width = blocks * size;
+    d3.select('#vis')
+        .style('width', (width + margin.left + margin.right) + 'px')
+        .style('height', (height + margin.top + margin.bottom) + 'px');
+    drawPlot(plotID);
+}
+
+var drawPlot = function (plotID) {
     var div = d3.select(plotID);
     div.selectAll('*').remove();
     var cols = d3.keys(mtx[0]);
@@ -32,7 +46,7 @@ var drawPlot = function (plotID, bandSize = 5) {
 
     div.selectAll('*').remove();
     var svg = div.append('svg')
-        .attr('width', width + margin.left + margin.right)
+        .attr('width', width + margin.left)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
@@ -86,6 +100,9 @@ var drawPlot = function (plotID, bandSize = 5) {
         .attr('height', size - padding);
     
     cell.each(function (c) {
+        if (c.i === c.j) {
+            return;
+        }
         x.domain(d3.extent(data[c.i]));
         y.domain(d3.extent(data[c.j]));
 
@@ -110,14 +127,14 @@ var drawPlot = function (plotID, bandSize = 5) {
     });
 
     svg.append("g")
-        .style("font", "bold 10px sans-serif")
+        .style("font", "bold 15px sans-serif")
         .selectAll("text")
         .data(cols).enter()
         .append("text")
-        .attr("transform", (d, i) => { return'translate(' + i * size + ',' + i * size + ')'})
-        .attr('text-anchor', 'end')
-        .attr("x", size - padding / 2)
-        .attr("y", padding)
+        .attr("transform", (_, i) => { return'translate(' + i * size + ',' + i * size + ')'})
+        .attr('text-anchor', 'center')
+        .attr("x", 0)
+        .attr("y", size / 2)
         .attr("dy", ".71em")
         .text((d) => { return d; });
 

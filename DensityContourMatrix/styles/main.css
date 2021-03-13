@@ -24,7 +24,12 @@
     position: absolute;
     left: 200px;
     top: 120px;
-    width: 240px;
+    width: 100%;
+}
+
+.slider-fill {
+    float: left;
+    margin-right: 20px;
 }
 
 .vis {
