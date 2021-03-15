@@ -70,7 +70,7 @@ var drawPlot = function (plotID) {
     var x = d3.scale.linear()
         .range([padding / 2, size - padding / 2]);
     var y = d3.scale.linear()
-        .range([padding / 2, size - padding / 2]);
+        .range([size - padding / 2, padding / 2]);
     
     var xAxis = d3.svg.axis()
         .scale(x)
@@ -85,7 +85,7 @@ var drawPlot = function (plotID) {
         .data(data).enter()
         .append('g')
         .attr('class', 'x axis')
-        .attr('transform', (_, i) => { return 'translate(' + i * size + ',' + height + ')'; })
+        .attr('transform', (_, i) => { return 'translate(' + (cols.length - 1 - i) * size + ',' + height + ')'; })
         .each(function (d) {
             x.domain(d3.extent(d));
             d3.select(this).call(xAxis);
@@ -105,7 +105,7 @@ var drawPlot = function (plotID) {
         .data(cross(cols, cols)).enter()
         .append('g')
         .attr('class', 'cell')
-        .attr('transform', (c) => { return 'translate(' + c.i * size + ',' + c.j * size + ')' });
+        .attr('transform', (c) => { return 'translate(' + (cols.length - 1 - c.i) * size + ',' + c.j * size + ')' });
     
     cell.append('rect')
         .attr('fill', 'none')
@@ -121,13 +121,17 @@ var drawPlot = function (plotID) {
         }
         x.domain(d3.extent(data[c.i]));
         y.domain(d3.extent(data[c.j]));
-
         const contours = d3.contourDensity()
             .x((d) => { return x(d[cols[c.i]]); })
             .y((d) => { return y(d[cols[c.j]]); })
             .size([size - padding, size - padding])
             .bandwidth(bandSize)(mtx);
         
+        var xy = extents(contours);
+        xExt = d3.extent(xy.x);
+        yExt = d3.extent(xy.y);
+        rescaleContour(contours, xExt, yExt, [padding / 2, size - padding / 2], [size - padding / 2, padding / 2]);
+
         const color = d3.scaleSequential(d3.interpolateViridis)
             .domain(d3.extent(contours, (d) => { return d.value; }));
         
@@ -147,7 +151,7 @@ var drawPlot = function (plotID) {
         .selectAll("text")
         .data(cols).enter()
         .append("text")
-        .attr("transform", (_, i) => { return'translate(' + i * size + ',' + i * size + ')'})
+        .attr("transform", (_, i) => { return'translate(' + (cols.length - 1 - i) * size + ',' + i * size + ')'})
         .attr('text-anchor', 'center')
         .attr("x", 0)
         .attr("y", size / 2)
@@ -162,5 +166,41 @@ var drawPlot = function (plotID) {
             }
         }
         return c;
+    }
+
+    function extents(coors) {
+        var xExt = [], yExt = [];
+        for (let i = 0; i < coors.length; i++) {
+            if (coors[i] instanceof Array) {
+                xy = extents(coors[i]);
+                xExt = xExt.concat(xy.x);
+                yExt = yExt.concat(xy.y);
+            } else if (coors[i] instanceof Object) {
+                xy = extents(coors[i].coordinates);
+                xExt = xExt.concat(xy.x);
+                yExt = yExt.concat(xy.y);
+            } else {
+                xExt.push(coors[0]);
+                yExt.push(coors[1]);
+                break;
+            }
+        }
+        return {x: xExt, y: yExt};
+    }
+    function rescaleContour(coors, xExt, yExt, xRg, yRg) {
+        for (let i = 0; i < coors.length; i++) {
+            if (coors[i] instanceof Array) {
+                rescaleContour(coors[i], xExt, yExt, xRg, yRg);
+            } else if (coors[i] instanceof Object) {
+                rescaleContour(coors[i].coordinates, xExt, yExt, xRg, yRg);
+            } else {
+                coors[0] = (coors[0] - xExt[0]) / (xExt[1] - xExt[0]);
+                coors[0] = coors[0] * (xRg[1] - xRg[0]) + xRg[0];
+
+                coors[1] = (coors[1] - yExt[0]) / (yExt[1] - yExt[0]);
+                coors[1] = coors[1] * (yRg[1] - yRg[0]) + yRg[0];
+                break;
+            }
+        }
     }
 }
