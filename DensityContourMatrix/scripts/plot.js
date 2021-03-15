@@ -198,7 +198,7 @@ var drawPlot = function (plotID) {
                 coors[0] = coors[0] * (xRg[1] - xRg[0]) + xRg[0];
 
                 coors[1] = (coors[1] - yExt[0]) / (yExt[1] - yExt[0]);
-                coors[1] = coors[1] * (yRg[1] - yRg[0]) + yRg[0];
+                coors[1] = coors[1] * (yRg[0] - yRg[1]) + yRg[1];
                 break;
             }
         }
